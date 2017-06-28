@@ -94,7 +94,7 @@ public class UI {
 		System.out.println(String.format("%5s%20s%16s%16s%12s", "ID", "Description", "Due date", "Date added", "Completed"));
 
 		for (TodoItem ti : listToPrint)
-			System.out.println(ti.toString(listToPrint.indexOf(ti) + 1));
+			System.out.println(ti.toString(todoItemList.indexOf(ti) + 1));
 	}
 
 	private int getNumberFromUser(String message) {
