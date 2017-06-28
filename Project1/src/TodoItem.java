@@ -40,6 +40,13 @@ public class TodoItem {
 		return status;
 	}
 
+	private String getStatusString() {
+		if (status)
+			return "Yes";
+		else
+			return "No";
+	}
+
 	public String getDescription() {
 		return description;
 	}
@@ -57,9 +64,8 @@ public class TodoItem {
 	}
 
 	public String toString(int index) {
-		//return index + "\t" + description. + "\t\t" + df.format(dateDue) + "\t" + df.format(dateAdded) + "\t" + status;
-		
-		return String.format("%5d%20s%16s%16s%12s", index, description, df.format(dateDue), df.format(dateAdded), status);
+		return String.format("%5d%20s%16s%16s%12s", index, description, df.format(dateDue), df.format(dateAdded),
+				getStatusString());
 	}
 
 }

@@ -1,7 +1,7 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class UI {
 
@@ -12,15 +12,27 @@ public class UI {
 
 	public UI() {
 		options = new String[] { "add item", "edit item", "remove item", "remove all completed items", "list items",
-				"complete item", "uncomplete item", "find item", "save", "exit" };
+				"complete item", "uncomplete item", "find item", "save (not implemented)", "exit" };
 		todoItemList = new ArrayList<TodoItem>();
 		br = new BufferedReader(new InputStreamReader(System.in));
+		createItems();
 		doAgain = true;
+	}
+	
+	private void createItems(){
+		TodoItem ti1 = new TodoItem("äta lunch", 3);
+		TodoItem ti2 = new TodoItem("äta middag", 5);
+		TodoItem ti3 = new TodoItem("sova", 1);
+		TodoItem ti4 = new TodoItem("städa", 10);
+		
+		todoItemList.add(ti1);
+		todoItemList.add(ti3);
+		todoItemList.add(ti2);
+		todoItemList.add(ti4);		
 	}
 
 	public boolean getInput() {
-		printOptions();
-		int noOfOperation = getNumberFromUser("What do you want to do? Please enter number:");
+		int noOfOperation = getNumberFromUser("\nWhat do you want to do? To list options type 0.\nPlease enter number:");
 		doOperation(noOfOperation);
 
 		return doAgain;
@@ -29,6 +41,7 @@ public class UI {
 	private void printOptions() {
 		System.out.println("\nOptions:");
 		System.out.println("--------------------------------------------");
+
 		for (int i = 0; i < options.length; i++)
 			System.out.println((i + 1) + "\t" + options[i]);
 	}
@@ -67,7 +80,7 @@ public class UI {
 			doAgain = false;
 			break;
 		default:
-			doAgain = false;
+			printOptions();
 			break;
 		}
 	}
@@ -80,36 +93,46 @@ public class UI {
 
 		System.out.println(String.format("%5s%20s%16s%16s%12s", "ID", "Description", "Due date", "Date added", "Completed"));
 
-		//System.out.println("ID \tDescription \tDue date \tDate added \tCompleted");
 		for (TodoItem ti : listToPrint)
 			System.out.println(ti.toString(listToPrint.indexOf(ti) + 1));
 	}
 
-	// TODO: fix issue with exception.
 	private int getNumberFromUser(String message) {
-		try {
-			System.out.println(message);
-			int number = Integer.parseInt(br.readLine());
-			return number;
-		} catch (NumberFormatException e) {
-			System.out.println("You did not enter a number. Try again");
-			return 0;
-		} catch (IOException e) {
-			System.out.println("You did not enter a number. Try again");
-			return 0;
+		int number = 100;
+		System.out.println(message);
+		
+		while(number == 100){
+			try {
+				number = Integer.parseInt(br.readLine());
+			} catch (Exception e) {
+				System.out.println("You did not enter a number. Try again");
+			}
 		}
+		return number;
+	}
+	
+	private int getIDFromUser(String message) {
+		int number = getNumberFromUser(message);
+		
+		while(number > todoItemList.size() | number == 0){
+			
+			number = getNumberFromUser("Not a valid ID. Please try again:");
+		}
+		return number;
 	}
 
-	// TODO: fix issue with exception.
 	private String getStringFromUser(String message) {
-		try {
-			System.out.println(message);
-			String userInput = br.readLine();
-			return userInput;
-		} catch (IOException e) {
-			System.out.println("You did not enter a String. Try again.");
-			return "";
+		String str = "";
+		System.out.println(message);
+		
+		while (str.equals("")){
+			try {
+				str = br.readLine();
+			} catch (Exception e) {
+				System.out.println("Something went wrong. Try again.");
+			}
 		}
+		return str;
 	}
 
 	private void addItem() {
@@ -121,50 +144,47 @@ public class UI {
 	}
 
 	private void editItem() {
-		int id = getNumberFromUser("Enter ID of item you want to edit:");
-		TodoItem itemToEdit = todoItemList.get(id-1);
+		int id = getIDFromUser("Enter ID of item you want to edit:");
+		TodoItem itemToEdit = todoItemList.get(id - 1);
 		String description = getStringFromUser("Old description \"" + itemToEdit.getDescription() + "\", enter new description:");
 		int days = getNumberFromUser("In how many days should this task be finished:");
-		
+
 		itemToEdit.setDates(days, false);
 		itemToEdit.setDescription(description);
-
 	}
 
 	private void deleteItem() {
-		int id = getNumberFromUser("Enter ID of item you want to delete:");
-		todoItemList.remove(id-1);
+		int id = getIDFromUser("Enter ID of item you want to delete:");
+		todoItemList.remove(id - 1);
 	}
 
 	private void deleteAllCompletedItems() {
-		int[] indexes = new int[todoItemList.size()];
-		
-		for(TodoItem ti: todoItemList)
-			if(ti.getStatus())
-				indexes[indexes.length] = todoItemList.indexOf(ti);
-
-		for(int index: indexes)
-			todoItemList.remove(index);
+		for (Iterator<TodoItem> iterator = todoItemList.iterator(); iterator.hasNext();) {
+			TodoItem ti = iterator.next();
+			if (ti.getStatus())
+				iterator.remove();
+		}
+		System.out.println("Completed items removed");
 	}
 
 	private void completeItem() {
-		int id = getNumberFromUser("Enter ID of item you have completed");
-		todoItemList.get(id-1).setDone();
+		int id = getIDFromUser("Enter ID of item you have completed");
+		todoItemList.get(id - 1).setDone();
 	}
 
 	private void uncompleteItem() {
-		int id = getNumberFromUser("Enter ID of item you have not completed:");
-		todoItemList.get(id-1).setUnDone();
+		int id = getIDFromUser("Enter ID of item you have not completed:");
+		todoItemList.get(id - 1).setUnDone();
 	}
 
 	private void findItem() {
 		ArrayList<TodoItem> searchArray = new ArrayList<TodoItem>();
 		String searchString = getStringFromUser("What do you want to search for:");
-		
-		for(TodoItem ti: todoItemList)
-		if(ti.getDescription().contains(searchString))
-			searchArray.add(ti);
-		
+
+		for (TodoItem ti : todoItemList)
+			if (ti.getDescription().contains(searchString))
+				searchArray.add(ti);
+
 		printItemList(searchArray);
 	}
 
