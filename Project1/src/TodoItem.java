@@ -11,6 +11,7 @@ public class TodoItem {
 	private Date dateDue;
 	private DateFormat df;
 	private boolean status;
+	private String statusString;
 
 	public TodoItem(String description, int days) {
 		this.description = description;
@@ -40,7 +41,7 @@ public class TodoItem {
 		return status;
 	}
 
-	private String getStatusString() {
+	public String getStatusString() {
 		if (status)
 			return "Yes";
 		else
@@ -51,12 +52,12 @@ public class TodoItem {
 		return description;
 	}
 
-	public Date getDateAdded() {
-		return dateAdded;
+	public String getDateAdded() {
+		return df.format(dateAdded);
 	}
 
-	public Date getDateDue() {
-		return dateDue;
+	public String getDateDue() {
+		return df.format(dateDue);
 	}
 
 	public void setDescription(String description) {
@@ -64,8 +65,7 @@ public class TodoItem {
 	}
 
 	public String toString(int index) {
-		return String.format("%5d%20s%16s%16s%12s", index, description, df.format(dateDue), df.format(dateAdded),
-				getStatusString());
+		return String.format("%5d%20s%16s%16s%12s", index, description, getDateDue(), getDateAdded(), getStatusString());
 	}
-
+	
 }
